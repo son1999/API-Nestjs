@@ -19,7 +19,7 @@ import { Configuration } from '../config/config.key';
       inject: [ConfigService],
       useFactory(config: ConfigService) {
         return {
-          secret: config.get(Configuration.JWT_SECRET),
+          secret: 'fsdfsdfs#$#5353gergf>54354343',
           signOptions: {
             expiresIn: 3600,
           },
