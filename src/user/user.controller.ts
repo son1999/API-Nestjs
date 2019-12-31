@@ -9,17 +9,17 @@ export class UserController {
   }
 
   @Get(':id')
-  async getUser(@Param('id', ParseIntPipe) id: number): Promise<UserDto> {
+  async getUser(@Param('id', ParseIntPipe) id: number): Promise<User> {
     return await this.userService.get(id);
   }
 
   @Get()
-  async getAllUser(): Promise<UserDto[]> {
+  async getAllUser(): Promise<User[]> {
     return await this.userService.getAll();
   }
 
   @Post()
-  async createUser(@Body() user: User): Promise<UserDto> {
+  async createUser(@Body() user: User): Promise<User> {
     return await this.userService.create(user);
   }
 
