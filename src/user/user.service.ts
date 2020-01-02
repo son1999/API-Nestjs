@@ -5,12 +5,16 @@ import { User } from './user.entity';
 import { UserDetails } from './user.details.entity';
 import { getConnection } from 'typeorm';
 import { RoleEntity } from '../role/role.entity';
+import { RoleRepository } from '../role/role.repository';
+import { status } from '../shared/entity.status.num';
 
 @Injectable()
 export class UserService {
   constructor(
     @InjectRepository(UserRepository)
     private readonly userRepository: UserRepository,
+    @InjectRepository(RoleRepository)
+    private readonly roleRepository: RoleRepository,
   ) {
   }
 
@@ -20,7 +24,7 @@ export class UserService {
     }
 
     const user = await this.userRepository.findOne(id, {
-      where: { status: 'ACTIVE' },
+      where: { status: status.ACTIVE },
     });
 
     if (!user) {
@@ -32,7 +36,7 @@ export class UserService {
 
   async getAll(): Promise<User[]> {
     return await this.userRepository.find({
-      where: { status: 'ACTIVE' },
+      where: { status: status.ACTIVE },
     });
   }
 
@@ -52,12 +56,26 @@ export class UserService {
 
   async delete(id: number): Promise<void> {
     const userExists = await this.userRepository.findOne(id, {
-      where: { status: 'ACTIVE' },
+      where: { status: status.ACTIVE },
     });
 
     if (!userExists) {
       throw new NotFoundException();
     }
-    await this.userRepository.update(id, { status: 'INACTIVE' });
+    await this.userRepository.update(id, { status: status.INACTIVE });
+  }
+
+  async setRoleToUser(userId: number, roleId: number) {
+    const userExist = await this.userRepository.findOne(userId, { where: { status: status.ACTIVE } });
+    if (!userExist) {
+      throw new NotFoundException();
+    }
+    const roleExist = await this.roleRepository.findOne(roleId, { where: { status: status.ACTIVE } });
+    if (!roleExist) {
+      throw new NotFoundException('Role does not exist');
+    }
+    userExist.roles.push(roleExist);
+    await this.userRepository.save(userExist);
+    return true;
   }
 }
